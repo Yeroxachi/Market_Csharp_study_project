@@ -1,0 +1,58 @@
+create function staffposition(pos character varying) returns staff
+    language sql
+as
+$$
+SELECT * FROM staff WHERE staff.position = pos;
+$$;
+
+alter function staffposition(varchar) owner to postgres;
+
+
+
+create function productbyproducer(producer_name character varying) returns product
+    language sql
+as
+$$
+SELECT product.* FROM product 
+    JOIN producer p on product.producer_id = p.producer_id WHERE p.name = producer_name;
+$$;
+
+alter function productbyproducer(varchar) owner to postgres;
+
+
+
+create function productbyprice(min_price bigint, max_price bigint) returns product
+    language sql
+as
+$$
+SELECT * FROM product WHERE product.price>= min_price AND product.price<=max_price;
+$$;
+
+alter function productbyprice(bigint, bigint) owner to postgres;
+
+
+
+create function productbycategory(cat_id bigint) returns product
+    language sql
+as
+$$
+SELECT * FROM product WHERE category_id = cat_id;
+$$;
+
+alter function productbycategory(bigint) owner to postgres;
+
+
+
+create function all_orders_of_customer(customerid bigint)
+    returns TABLE(order_id bigint, customer_id bigint, price bigint)
+    language sql
+as
+$$
+SELECT "order".order_id, "order".customer_id, SUM(p2.price) as price FROM "order"
+    JOIN productlist p on "order".order_id = p.order_id
+    JOIN product p2 on p.product_id = p2.product_id WHERE "order".customer_id = customerId
+    GROUP BY "order".order_id, "order".customer_id, price;
+$$;
+
+alter function all_orders_of_customer(bigint) owner to postgres;
+
